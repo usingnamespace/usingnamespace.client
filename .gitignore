@@ -1,0 +1,10 @@
+*.ini
+*.egg
+*.egg-info
+*.pyc
+*$py.class
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+dist/
