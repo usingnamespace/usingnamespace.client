@@ -1,5 +1,7 @@
 import os.path
 
+import requests
+
 try:
     from ConfigParser import (
             SafeConfigParser,
@@ -62,6 +64,24 @@ def setup(ctx, **kw):
     if (not interactive and test) or (interactive and click.confirm('Test new configuration')):
         click.echo('Testing configuration...')
 
+        headers = {
+                'x-api-ticket': api_ticket,
+                }
+
+        try:
+            r = requests.get(api_url, headers=headers)
+
+            if r.status_code != 200:
+                click.echo('API ticket or API url are wrong. Do not save file.')
+                save = False
+            else:
+                click.echo('Everything checks out.')
+                if interactive:
+                    save = True
+
+        except:
+            click.echo('Provided API URL is invalid.')
+            save = False
 
     if (not interactive and save) or (interactive and click.confirm('Save the new configuration file?', abort=True, default=save)):
         try:
