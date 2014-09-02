@@ -1,19 +1,6 @@
 import os.path
 
 import requests
-
-try:
-    from ConfigParser import (
-            SafeConfigParser,
-            NoOptionError,
-            )
-except ImportError:
-    # Name changed in Python 3.x to configparser
-    from configparser import (
-            SafeConfigParser,
-            NoOptionError,
-            )
-
 import click
 
 default_api_url = 'https://api.usingnamespace.com/v1/'
@@ -27,30 +14,26 @@ default_api_url = 'https://api.usingnamespace.com/v1/'
 @click.pass_context
 def setup(ctx, **kw):
     config_path = ctx.obj['config_path']
-    config_defaults = {}
-    config = SafeConfigParser(config_defaults)
+    config = ctx.obj['config']
 
     interactive = kw['interactive']
     test = kw['test']
     save = kw['save']
 
-    if os.path.exists(config_path):
-        config.readfp(open(config_path))
-        
-        try:
-            if kw['api_url'] == default_api_url and interactive:
-                kw['api_url'] = config.get('DEFAULT', 'api_url')
+    try:
+        if kw['api_url'] == default_api_url and interactive:
+            kw['api_url'] = config.get('DEFAULT', 'api_url')
 
-            if kw['api_ticket'] is None:
-                kw['api_ticket'] = config.get('DEFAULT', 'api_ticket')
-        except NoOptionError:
-            pass
+        if kw['api_ticket'] is None:
+            kw['api_ticket'] = config.get('DEFAULT', 'api_ticket')
+    except NoOptionError:
+        pass
 
     api_url_prompt = 'What API URL would you like to use'
 
     if kw['api_url'] != default_api_url:
         api_url_prompt = api_url_prompt + ' (Default: {})'.format(default_api_url)
-    
+
     api_url = kw['api_url'] if not interactive else click.prompt(api_url_prompt, default=kw['api_url'])
     api_ticket = kw['api_ticket'] if not interactive else click.prompt('API ticket for your account', default=kw['api_ticket'])
 

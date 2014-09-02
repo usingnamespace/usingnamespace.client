@@ -1,5 +1,17 @@
 import os.path
 
+try:
+    from ConfigParser import (
+            SafeConfigParser,
+            NoOptionError,
+            )
+except ImportError:
+    # Name changed in Python 3.x to configparser
+    from configparser import (
+            SafeConfigParser,
+            NoOptionError,
+            )
+
 import click
 
 from .setup import setup
@@ -14,10 +26,15 @@ config_dir = dirs.user_data_dir
 @click.pass_context
 def cli(ctx, **kw):
     config_path = os.path.join(kw['config_dir'], 'config.ini')
+    config_defaults = {}
+    config = SafeConfigParser(config_defaults)
+
     if os.path.exists(config_path):
-        print("Config file exists. Grabbing values.")
+        config.readfp(open(config_path))
+
     ctx.obj = kw
     ctx.obj['config_path'] = config_path
+    ctx.obj['config'] = config
 
 cli.add_command(setup)
 
