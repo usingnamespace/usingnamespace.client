@@ -18,7 +18,7 @@ default_api_url = 'https://api.usingnamespace.com/v1/'
 
 @click.command()
 @click.option('--api-url', default=default_api_url, help="The API URL")
-@click.option('--api-token', help="The API token")
+@click.option('--api-ticket', help="The API ticket")
 @click.pass_context
 def setup(ctx, **kw):
     config_path = ctx.obj['config_path']
@@ -32,8 +32,8 @@ def setup(ctx, **kw):
             if kw['api_url'] == default_api_url:
                 kw['api_url'] = config.get('DEFAULT', 'api_url')
 
-            if kw['api_token'] is None:
-                kw['api_token'] = config.get('DEFAULT', 'api_token')
+            if kw['api_ticket'] is None:
+                kw['api_ticket'] = config.get('DEFAULT', 'api_ticket')
         except NoOptionError:
             pass
 
@@ -43,10 +43,14 @@ def setup(ctx, **kw):
         api_url_prompt = api_url_prompt + ' (Default: {})'.format(default_api_url)
    
     api_url = click.prompt(api_url_prompt, default=kw['api_url'])
-    api_token = click.prompt('Valid API token', default=kw['api_token'])
+    api_ticket = kw['api_ticket'] if not interactive else click.prompt('API ticket for your account', default=kw['api_ticket'])
+
+    if not interactive and api_ticket is None:
+        click.echo('Unable to continue without API ticket')
+        exit(-1)
 
     config.set('DEFAULT', 'api_url', api_url)
-    config.set('DEFAULT', 'api_token', api_token)
+    config.set('DEFAULT', 'api_ticket', api_ticket)
 
     if click.confirm('Test new configuration'):
         click.echo('Testing configuration...')
