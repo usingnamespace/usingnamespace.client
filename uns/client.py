@@ -37,6 +37,12 @@ def cli(ctx, **kw):
     ctx.obj['config_path'] = config_path
     ctx.obj['config'] = config
 
+    api_url = config.get('DEFAULT', 'api_url')
+    if api_url[-1] != '/':
+        api_url = api_url + '/'
+
+    config.set('DEFAULT', 'api_url', api_url)
+
 cli.add_command(setup)
 cli.add_command(sites)
 
